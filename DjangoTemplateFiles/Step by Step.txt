@@ -1,0 +1,144 @@
+# Step by step setup instructions #
+
+**Win10 Setup**
+	install preferred source code editor(s)
+		Visual Studio Code
+		Notepad++
+		PyCharm
+		etc...
+		
+	install python (add to PATH during installation)
+		latest version
+		[optional] other versions
+			if installing multiple versions
+				follow steps 2 and 3 from http://www.zaxrosenberg.com/python-virtual-environments-on-windows/ to set up python aliases.
+					***Sample text in .ps1 file***
+					Set-Alias [aliasName] '[python version location]'
+					Set-Alias python2 'C:\Python27\python.exe'
+					Set-Alias python3 'C:\Program Files\Python37\python.exe'
+	
+		use '[aliasName]' -m pip for all pip installations for all versions of python
+			use '[aliasName] -m pip install virtualenv'
+			use '[aliasName] -m pip install django'
+		use '[aliasName] -m django' in place of 'django-admin'
+			***Sample text for starting a project***
+			[aliasName] -m django startproject [projectName]
+			python3 -m django startproject Test
+			
+**How to start a project from Admin PowerShell**
+	django-admin startproject [ProjectName]
+	For Google Cloud Platform
+		copy requirements, app.yaml, and appengine_config.py to [ProjectName]
+	cd [ProjectName]
+	virtualenv .
+	.\Scripts\activate
+	For Google Cloud Platform
+		pip install -t lib -r requirements.txt
+		delete requirements out of [ProjectName] (optional)
+	add '[ProjectName]/templates' to DIRS under TEMPLATES in settings.py
+	copy static information below and replace STATIC_URL entire line in settings.py:
+
+		###############################################################################################
+	
+			STATICFILES_DIRS = [
+				os.path.join(BASE_DIR, '[ProjectName]/static'),		#Make sure to input [ProjectName]
+			]
+
+			STATIC_URL = '/static/'
+			STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+			
+		################################################################################################
+			
+	copy database information below and replace entire block of DATABASE in settings.py:
+			
+		################################################################################################
+			
+			try:
+				import MySQLdb  
+			except ImportError:
+				import sqlite3
+
+			if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine'):
+				DATABASES = {
+					'default': {
+					'ENGINE': 'django.db.backends.mysql',
+					'HOST': '/cloudsql/<your-cloudsql-connection-string>',
+					'NAME': '[ProjectName]',
+					'USER': 'slim102471', #INPUT INSTANCE USERNAME HERE
+					'PASSWORD': 'myGCP01', #INPUT INSTANCE PASSWORD HERE
+					}
+				}
+			else:
+				# Running locally so connect to either a local sqlite3 instance or connect to
+
+				DATABASES = {
+					'default': {
+					'ENGINE': 'django.db.backends.sqlite3',
+					'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+					}
+				}
+			
+		###################################################################################################	
+	
+**How to create an app**
+inside [ProjectName]
+	python manage.py startapp [AppName]
+	create templates/[AppName] folder in [AppName]
+	place created html files in new folder [templates/AppName]
+	add ['AppName'] to settings.py under INSTALLED_APPS
+
+**How to set up GCP and mySQL**
+	go to https://cloud.google.com/sdk/docs/ and download the Cloud SDK installer  
+		select intall for all users
+		insure [Bundled Python] and [Cloud Tools for PowerShell] are selected	
+	After step 3 pick up at step 3 here: https://cloud.google.com/appengine/docs/standard/python/download
+	GitHub installation and setup is optional
+	go to https://cloud.google.com/python/django/appengine and follow steps
+		Do not worry about the following steps 
+			Download and run the app
+			Clone the Django app
+			Setting up your local environment
+			Install the SQL proxy
+			Initialize your Cloud SQL instance
+			Run the app on your local computer (step 2)
+			
+**How to create django forms**
+	create forms.py in [AppName]
+	Use the template below to create a new variable type in forms.py
+	#################################################################
+	from django import forms
+	class [FormName](forms.Form):
+		[inputVariable] = forms.[variableType]()
+	#################################################################
+
+	Use the template below to create custom form validation inside class in forms.py
+	#################################################################
+		def [clean_variable](self):
+			[inputVariable] = self.cleaned_data.get('[inputVariable]')
+			if [conditional]:
+				raise forms.ValidationError('[errorMessage]')
+			return [inputVariable]
+	#################################################################	
+	
+
+	Use the template below to create a dynamic backend variable in views.py to be used in the html
+	#################################################################
+	from forms import [FormName]
+	[formVariable] = [FormName]
+	[contextVariable] = {
+		'[pythonVariable]':formVariable  #can be same variable name but can cause confusion
+	}
+	#################################################################
+	update return render(request, [html]) to include [contextVariable] in args (render(request, [html], [contextVariable]))
+		
+	Place {{ [pythonVariable] }} in the applicable location on the html page
+	
+	
+	
+	
+**How to authorize google login**
+	gcloud auth login
+	gcloud config set project [project id]
+
+
+	

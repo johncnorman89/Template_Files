@@ -1,0 +1,7 @@
+RewriteEngine On
+RewriteBase /
+RewriteRule ^(media/.*)$ - [L]
+RewriteRule ^(static/.*)$ - [L]
+RewriteCond %{REQUEST_URI} !(django.fcgi)
+RewriteRule ^(.*)$ django.fcgi/$1 [L]
+

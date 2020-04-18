@@ -1,0 +1,4 @@
+Your Django install (with sample project) is complete. As your next step, you will need to point a subdomain (vhost) at the "django/django-vhost" folder and make sure that FastCGI is enabled for it. The sample project page should appear when you view the newly created URL. 
+
+When working with Django from the shell, you will need to adjust your path to include Django's special Python installation. In bash (your default shell), type: 
+export PATH=$HOME/django/django-python/bin:$PATH
